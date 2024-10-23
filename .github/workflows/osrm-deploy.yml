@@ -13,20 +13,40 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Add OSRM PPA and install OSRM
+      - name: Install dependencies
         run: |
-          sudo add-apt-repository -y ppa:project-osrm/ppa
           sudo apt-get update
-          sudo apt-get install -y osrm-backend
+          sudo apt-get install -y build-essential cmake git \
+            libboost-all-dev libprotobuf-dev protobuf-compiler \
+            libsqlite3-dev libtbb-dev zlib1g-dev libcurl4-openssl-dev \
+            libexpat1-dev
+
+      - name: Clone OSRM
+        run: |
+          git clone https://github.com/Project-OSRM/osrm-backend.git
+          cd osrm-backend
+          git checkout v5.25.0  # 필요한 버전으로 체크아웃
+
+      - name: Build OSRM
+        run: |
+          cd osrm-backend
+          mkdir -p build
+          cd build
+          cmake ..
+          make
 
       - name: Extract OSM data
         run: |
-          osrm-extract -p /usr/share/osrm/profiles/car.lua ./data/south-korea-latest.osm.pbf
+          cd osrm-backend/build
+          osrm-extract -p /usr/share/osrm/profiles/car.lua \
+            ../data/south-korea-latest.osm.pbf
 
       - name: Contract the OSM data
         run: |
-          osrm-contract ./south-korea-latest.osrm
+          cd osrm-backend/build
+          osrm-contract ../south-korea-latest.osrm
 
       - name: Run OSRM server
         run: |
-          osrm-routed --algorithm mld ./south-korea-latest.osrm
+          cd osrm-backend/build
+          osrm-routed --algorithm mld ../south-korea-latest.osrm
