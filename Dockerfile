@@ -1,4 +1,4 @@
-# OSRM을 위한 빌드 환경 설정
+# OSRM 빌드 환경 설정
 FROM ubuntu:20.04
 
 # 필수 패키지 설치
@@ -25,12 +25,12 @@ RUN git clone https://github.com/Project-OSRM/osrm-backend.git
 WORKDIR /osrm-backend
 RUN mkdir -p build && cd build && cmake .. && cmake --build .
 
-# PBF 파일 다운로드 (GitHub에서)
-ADD south-korea-latest.osm.pbf
+# PBF 파일을 루트 디렉토리에 복사
+ADD https://raw.githubusercontent.com/202420505/moontree-osrm/main/south-korea-latest.osm.pbf /map.osm.pbf
 
 # PBF 파일 처리
-RUN ./build/osrm-extract /data/map.osm.pbf -p profiles/car.lua
-RUN ./build/osrm-contract /data/map.osrm
+RUN ./build/osrm-extract /map.osm.pbf -p profiles/car.lua
+RUN ./build/osrm-contract /map.osrm
 
 # OSRM 서버 실행
-CMD ["./build/osrm-routed", "--algorithm", "mld", "/data/map.osrm"]
+CMD ["./build/osrm-routed", "--algorithm", "mld", "/map.osrm"]
