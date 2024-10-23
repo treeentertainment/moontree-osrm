@@ -18,8 +18,10 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y build-essential cmake git \
             libboost-all-dev libprotobuf-dev protobuf-compiler \
-            libsqlite3-dev libtbb-dev zlib1g-dev libcurl4-openssl-dev \
-            libexpat1-dev
+            libsqlite3-dev zlib1g-dev libcurl4-openssl-dev \
+            libexpat1-dev wget \
+            # Install Intel TBB
+            libtbb-dev
 
       - name: Clone OSRM
         run: |
