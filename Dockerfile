@@ -1,7 +1,8 @@
 # OSRM 빌드 환경 설정
 FROM ubuntu:20.04
 
-# 필수 패키지 설치
+# 필수 패키지 설치 (비대화형으로 tzdata 설정)
+ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y \
     build-essential \
     cmake \
@@ -18,12 +19,14 @@ RUN apt-get update && apt-get install -y \
     zlib1g-dev \
     liblua5.2-dev \
     libtbb-dev \
-    curl
+    curl \
+    tzdata
 
-# OSRM Backend 소스 클론 및 빌드
 RUN git clone https://github.com/Project-OSRM/osrm-backend.git
 WORKDIR /osrm-backend
 RUN mkdir -p build && cd build && cmake .. && cmake --build .
+# 시간대 설정 (예: Europe/Berlin)
+RUN ln -fs /usr/share/zoneinfo/Europe/Berlin /etc/localtime && dpkg-reconfigure --frontend noninteractive tzdata
 
 # PBF 파일을 루트 디렉토리에 복사
 ADD https://raw.githubusercontent.com/202420505/moontree-osrm/main/south-korea-latest.osm.pbf /map.osm.pbf
