@@ -26,7 +26,7 @@ WORKDIR /osrm-backend
 RUN mkdir -p build && cd build && cmake .. && cmake --build .
 
 # PBF 파일 다운로드 (GitHub에서)
-ADD <PBF 파일 경로> /data/map.osm.pbf
+ADD south-korea-latest.osm.pbf
 
 # PBF 파일 처리
 RUN ./build/osrm-extract /data/map.osm.pbf -p profiles/car.lua
