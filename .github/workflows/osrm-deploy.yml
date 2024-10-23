@@ -20,7 +20,7 @@ jobs:
             libboost-all-dev libprotobuf-dev protobuf-compiler \
             libsqlite3-dev zlib1g-dev libcurl4-openssl-dev \
             libexpat1-dev wget \
-            && sudo apt-get install -y libtbb-dev
+            libtbb-dev
 
       - name: Clone OSRM
         run: |
