@@ -5,7 +5,6 @@ FROM ubuntu:20.04
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y \
     build-essential \
-    cmake \
     git \
     libboost-all-dev \
     libprotobuf-dev \
@@ -19,7 +18,19 @@ RUN apt-get update && apt-get install -y \
     liblua5.2-dev \
     libtbb-dev \
     curl \
-    tzdata
+    tzdata \
+    wget \
+    && apt-get clean
+
+# CMake 설치 (소스에서 빌드)
+RUN wget https://cmake.org/files/v3.18/cmake-3.18.6.tar.gz && \
+    tar -xzvf cmake-3.18.6.tar.gz && \
+    cd cmake-3.18.6 && \
+    ./bootstrap && \
+    make && \
+    make install && \
+    cd .. && \
+    rm -rf cmake-3.18.6 cmake-3.18.6.tar.gz
 
 # 시간대 설정 (한국 표준시)
 RUN ln -fs /usr/share/zoneinfo/Asia/Seoul /etc/localtime && dpkg-reconfigure --frontend noninteractive tzdata
@@ -34,7 +45,7 @@ ADD https://raw.githubusercontent.com/202420505/moontree-osrm/main/south-korea-l
 
 # PBF 파일 처리
 RUN ./build/osrm-extract /map.osm.pbf -p profiles/car.lua
-RUN ./build/osrm-contract /map.osm
+RUN ./build/osrm-contract /map.osrm
 
 # OSRM 서버 실행
 CMD ["./build/osrm-routed", "--algorithm", "mld", "/map.osrm"]
