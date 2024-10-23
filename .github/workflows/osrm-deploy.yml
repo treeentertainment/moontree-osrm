@@ -1,0 +1,31 @@
+name: Deploy OSRM
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install OSRM
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y osrm-backend
+
+      - name: Extract OSM data
+        run: |
+          osrm-extract -p /usr/share/osrm/profiles/car.lua ./data/south-korea-latest.osm.pbf
+
+      - name: Contract the OSM data
+        run: |
+          osrm-contract ./south-korea-latest.osrm
+
+      - name: Run OSRM server
+        run: |
+          osrm-routed --algorithm mld ./south-korea-latest.osrm
