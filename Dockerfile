@@ -26,7 +26,7 @@ RUN git clone https://github.com/Project-OSRM/osrm-backend.git
 WORKDIR /osrm-backend
 RUN mkdir -p build && cd build && cmake .. && cmake --build .
 # 시간대 설정 (예: Europe/Berlin)
-RUN ln -fs /usr/share/zoneinfo/Europe/Berlin /etc/localtime && dpkg-reconfigure --frontend noninteractive tzdata
+RUN ln -fs /usr/share/zoneinfo/Asia/Seoul /etc/localtime && dpkg-reconfigure --frontend noninteractive tzdata
 
 # PBF 파일을 루트 디렉토리에 복사
 ADD https://raw.githubusercontent.com/202420505/moontree-osrm/main/south-korea-latest.osm.pbf /map.osm.pbf
