@@ -45,7 +45,7 @@ ADD https://raw.githubusercontent.com/202420505/moontree-osrm/main/south-korea-l
 
 # PBF 파일 처리
 RUN ./build/osrm-extract /map.osm.pbf -p profiles/car.lua
-RUN ./build/osrm-contract /map.osrm
+RUN ./build/osrm-contract /map.osm
 
 # OSRM 서버 실행
 CMD ["./build/osrm-routed", "--algorithm", "mld", "/map.osrm"]
