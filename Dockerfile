@@ -12,7 +12,6 @@ RUN apt-get update && apt-get install -y \
     protobuf-compiler \
     libosmpbf-dev \
     libstxxl-dev \
-    libstxxl1v5 \
     libxml2-dev \
     libsparsehash-dev \
     libbz2-dev \
@@ -22,18 +21,20 @@ RUN apt-get update && apt-get install -y \
     curl \
     tzdata
 
+# 시간대 설정 (한국 표준시)
+RUN ln -fs /usr/share/zoneinfo/Asia/Seoul /etc/localtime && dpkg-reconfigure --frontend noninteractive tzdata
+
+# OSRM Backend 소스 클론 및 빌드
 RUN git clone https://github.com/Project-OSRM/osrm-backend.git
 WORKDIR /osrm-backend
-RUN mkdir -p build && cd build && cmake .. && cmake --build .
-# 시간대 설정 (예: Europe/Berlin)
-RUN ln -fs /usr/share/zoneinfo/Asia/Seoul /etc/localtime && dpkg-reconfigure --frontend noninteractive tzdata
+RUN mkdir -p build && cd build && cmake .. && make
 
 # PBF 파일을 루트 디렉토리에 복사
 ADD https://raw.githubusercontent.com/202420505/moontree-osrm/main/south-korea-latest.osm.pbf /map.osm.pbf
 
 # PBF 파일 처리
 RUN ./build/osrm-extract /map.osm.pbf -p profiles/car.lua
-RUN ./build/osrm-contract /map.osrm
+RUN ./build/osrm-contract /map.osm
 
 # OSRM 서버 실행
 CMD ["./build/osrm-routed", "--algorithm", "mld", "/map.osrm"]
