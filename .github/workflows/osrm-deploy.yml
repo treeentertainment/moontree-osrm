@@ -1,0 +1,39 @@
+name: OSRM Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install Dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y cmake libboost-all-dev libprotobuf-dev protobuf-compiler libosmpbf-dev libbz2-dev libstxxl-dev libxml2-dev libzip-dev libboost-filesystem-dev libboost-iostreams-dev libtbb-dev
+
+      - name: Build OSRM
+        run: |
+          mkdir -p build
+          cd build
+          cmake ..
+          cmake --build .
+
+      - name: Use OSRM file from GitHub
+        run: |
+          cp south-korea-latest.osm.pbf .  # OSRM 파일이 있는 GitHub 경로
+
+      - name: Prepare OSRM Data
+        run: |
+          ./build/osrm-extract south-korea-latest.osm.pbf
+          ./build/osrm-contract south-korea-latest.osrm
+
+      - name: Run OSRM Server
+        run: |
+          ./build/osrm-routed --algorithm mld south-korea-latest.osrm
