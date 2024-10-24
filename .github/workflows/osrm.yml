@@ -1,0 +1,32 @@
+# .github/workflows/osrm.yml
+
+name: Build OSRM API
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  osrm:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Docker
+      uses: docker/setup-buildx-action@v1
+
+    - name: Pull OSRM Docker image
+      run: docker pull osrm/osrm-backend:latest
+
+    - name: Prepare OSRM data
+      run: |
+        docker run -t -v $(pwd):/data osrm/osrm-backend osrm-extract -p /opt/car.lua /data/osm.pbf
+        docker run -t -v $(pwd):/data osrm/osrm-backend osrm-partition /data/osm.osrm
+        docker run -t -v $(pwd):/data osrm/osrm-backend osrm-customize /data/osm.osrm
+
+    - name: Start OSRM Routing Server
+      run: |
+        docker run -d -t -i -p 5000:5000 -v $(pwd):/data osrm/osrm-backend osrm-routed --algorithm mld /data/osm.osrm
