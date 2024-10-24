@@ -7,6 +7,6 @@
   },
   "dependencies": {
     "express": "^4.17.1",
-    "osm-pbf-parser": "^1.0.0"  // Assuming this version exists for 'osm-pbf-parser'
+    "osm-pbf-parser": "^1.0.0" 
   }
 }
