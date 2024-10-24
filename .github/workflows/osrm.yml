@@ -1,6 +1,6 @@
 # .github/workflows/osrm.yml
 
-name: Build OSRM API
+name: Build OSRM API with Git LFS
 
 on:
   push:
@@ -12,8 +12,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
+    - name: Checkout code with LFS
       uses: actions/checkout@v2
+      with:
+        lfs: true  # Git LFS 활성화
 
     - name: Set up Docker
       uses: docker/setup-buildx-action@v1
