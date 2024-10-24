@@ -1,0 +1,13 @@
+{
+  "name": "osm-api",
+  "version": "1.0.0",
+  "description": "A simple OSM API",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "osmpbf": "^6.0.0"
+  }
+}
