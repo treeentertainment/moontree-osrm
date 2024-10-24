@@ -1,17 +1,17 @@
 const express = require('express');
 const fs = require('fs');
-const osmPbfParser = require('osmpbf');
+const OsmPbfParser = require('osm-pbf-parser');
 
 const app = express();
 const filePath = 'your.osm.pbf';  // OSM 파일 경로
 
 app.get('/osm', (req, res) => {
   const stream = fs.createReadStream(filePath);
-  const parser = new osmPbfParser();
-
-  stream.pipe(parser);
+  const parser = new OsmPbfParser();
 
   let nodes = [];
+
+  stream.pipe(parser);
 
   parser.on('data', (item) => {
     if (item.type === 'node') {
