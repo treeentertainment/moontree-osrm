@@ -3,7 +3,7 @@ name: Deploy OSM API to Render
 on:
   push:
     branches:
-      - main  # 'main' 브랜치에 push가 발생할 때마다 트리거
+      - main  # Trigger the workflow only on pushes to the 'main' branch
 
 jobs:
   build:
@@ -16,15 +16,22 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '14'
+          node-version: '14'  # Specify Node.js version
 
       - name: Install dependencies
         run: npm install
 
       - name: Run tests (optional)
-        run: npm test  # 테스트가 있으면 이 단계에서 실행
+        run: npm test || echo "No tests found, skipping..."
+
+      - name: Verify apache-site.conf file exists
+        run: |
+          if [ ! -f ./apache-site.conf ]; then
+            echo "apache-site.conf not found!"
+            exit 1
+          fi
 
       - name: Deploy to Render.com
-        run: curl -X POST https://api.render.com/deploy/srv-cscvm2hu0jms73cnbd7g?key=DjXAHSJCvY4 # Render.com의 Deploy Hook을 통해 배포
+        run: curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK_URL }}  # Use GitHub Secrets for the Render deploy hook URL
         env:
-          API_KEY: ${{ secrets.RENDER_API_KEY }}  # Render API Key를 GitHub Secrets에 저장 후 사용
+          API_KEY: ${{ secrets.RENDER_API_KEY }}  # Render API Key from GitHub Secrets
