@@ -1,6 +1,4 @@
-# .github/workflows/osrm.yml
-
-name: Build OSRM API with Git LFS
+name: Deploy OSRM API
 
 on:
   push:
@@ -12,10 +10,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code with LFS
+    - name: Checkout code
       uses: actions/checkout@v2
-      with:
-        lfs: true  # Git LFS 활성화
+
+    - name: List files in the root directory
+      run: |
+        echo "Listing files in the root directory:"
+        ls -alh
 
     - name: Set up Docker
       uses: docker/setup-buildx-action@v1
@@ -23,12 +24,16 @@ jobs:
     - name: Pull OSRM Docker image
       run: docker pull osrm/osrm-backend:latest
 
+    - name: Verify files in Docker
+      run: docker run -v ${{ github.workspace }}:/data osrm/osrm-backend ls /data
+
     - name: Prepare OSRM data
       run: |
-        docker run -t -v $(pwd):/data osrm/osrm-backend osrm-extract -p /opt/car.lua /data/south-korea-latest.osm.pbf
-        docker run -t -v $(pwd):/data osrm/osrm-backend osrm-partition /data/south-korea-latest.osrm
-        docker run -t -v $(pwd):/data osrm/osrm-backend osrm-customize /data/south-korea-latest.osrm
+        # Use absolute path to ensure it finds the PBF file in the root directory
+        docker run -t -v ${{ github.workspace }}:/data osrm/osrm-backend osrm-extract -p /opt/car.lua /data/south-korea-latest.osm.pbf
+        docker run -t -v ${{ github.workspace }}:/data osrm/osrm-backend osrm-partition /data/south-korea-latest.osrm
+        docker run -t -v ${{ github.workspace }}:/data osrm/osrm-backend osrm-customize /data/south-korea-latest.osrm
 
     - name: Start OSRM Routing Server
       run: |
-        docker run -d -t -i -p 5000:5000 -v $(pwd):/data osrm/osrm-backend osrm-routed --algorithm mld /data/south-korea-latest.osrm
+        docker run -d -t -i -p 5000:5000 -v ${{ github.workspace }}:/data osrm/osrm-backend osrm-routed --algorithm mld /data/south-korea-latest.osrm
