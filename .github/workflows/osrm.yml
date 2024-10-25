@@ -12,6 +12,15 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
+      with:
+        lfs: true  # Enable Git LFS in the checkout action
+
+    - name: Install Git LFS and pull files
+      run: |
+        sudo apt-get update
+        sudo apt-get install git-lfs
+        git lfs install
+        git lfs pull
 
     - name: List files in the root directory
       run: |
